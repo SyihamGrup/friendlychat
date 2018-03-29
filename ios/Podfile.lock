@@ -85,7 +85,7 @@ PODS:
 
 DEPENDENCIES:
   - firebase_analytics (from `Pods/.symlinks/plugins/firebase_analytics-0.3.0/ios`)
-  - firebase_auth (from `Pods/.symlinks/plugins/firebase_auth-0.5.2/ios`)
+  - firebase_auth (from `Pods/.symlinks/plugins/firebase_auth-0.5.3/ios`)
   - firebase_core (from `Pods/.symlinks/plugins/firebase_core-0.0.7/ios`)
   - firebase_database (from `Pods/.symlinks/plugins/firebase_database-0.4.1/ios`)
   - firebase_storage (from `Pods/.symlinks/plugins/firebase_storage-0.2.0/ios`)
@@ -97,7 +97,7 @@ EXTERNAL SOURCES:
   firebase_analytics:
     :path: Pods/.symlinks/plugins/firebase_analytics-0.3.0/ios
   firebase_auth:
-    :path: Pods/.symlinks/plugins/firebase_auth-0.5.2/ios
+    :path: Pods/.symlinks/plugins/firebase_auth-0.5.3/ios
   firebase_core:
     :path: Pods/.symlinks/plugins/firebase_core-0.0.7/ios
   firebase_database:
