@@ -1,22 +1,24 @@
 name: friendlychat
 description: A fliendly chat app, using dart, flutter and firebase.
-version: 1.0.0
+version: 2.0.0
 author: Dyego Vieira <contato@dyegovieira.com>
-
 
 dependencies:
   flutter:
     sdk: flutter
 
   cupertino_icons: any
-
-  image_picker: ^0.3.1
-  google_sign_in: ^3.0.0
-  firebase_analytics: ^0.3.0
-  firebase_auth: ^0.5.3
-  firebase_database: ^0.4.1
-  firebase_storage: ^0.2.0
-
+  image_picker: any
+  google_sign_in: any
+  firebase_analytics: any
+  firebase_auth: any
+  firebase_database: any
+  firebase_storage: any
+  redux: any
+  flutter_redux: any
+  cloud_firestore: any
+  redux_epics: any
+  rxdart: any
 
 dev_dependencies:
   flutter_test:

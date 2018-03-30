@@ -5,8 +5,12 @@ import 'package:flutter/material.dart';
 class DefaultAppBar extends AppBar {
 
   DefaultAppBar({
-    this.title
+    this.title,
+    this.bottom,
+    this.leading,
   }) : super(
+    leading: leading,
+    bottom: bottom,
     title: title,
     centerTitle: defaultTargetPlatform == TargetPlatform.iOS,
     elevation:  defaultTargetPlatform == TargetPlatform.iOS
@@ -16,5 +20,7 @@ class DefaultAppBar extends AppBar {
 
 
   final Widget title;
+  final PreferredSizeWidget bottom;
+  final Widget leading;
 
 }

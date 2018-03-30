@@ -4,8 +4,8 @@ import 'package:friendlychat/component/default_app_bar.dart';
 import 'package:flutter/cupertino.dart';
 
 
-import 'package:google_sign_in/google_sign_in.dart';
 import 'dart:async';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -26,27 +26,43 @@ final reference = FirebaseDatabase.instance.reference().child('messages');
 
 
 
+final chatPageBottomNavigationBarItem = new BottomNavigationBarItem(
+  icon: new Icon(Icons.chat_bubble),
+  title: new Text('Chat'),
+);
 
 
+class ChatPage extends StatefulWidget {
 
-class ChatScreen extends StatefulWidget {
   @override
-  State createState() => new ChatScreenState();
+  State createState() => new ChatPageState();
 }
 
-class ChatScreenState extends State<ChatScreen> {
+class ChatPageState extends State<ChatPage> {
+
 
   final TextEditingController _textController = new TextEditingController();
 
+  int newMessagesCount = 0;
   bool _isComposing = false;
+
+
+
 
   @override
   Widget build(BuildContext context) {
+    reference.onChildAdded.listen((event) {
+      setState((){
+        newMessagesCount += 1;
+      });
+    });
+
+
     return new Scaffold(
       appBar: new DefaultAppBar(
         title: new Text("Friendlychat"),
       ),
-      body: _buildBody()
+        body: _buildBody()
     );
   }
 
@@ -93,25 +109,28 @@ class ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildTextComposer() {
-    return new IconTheme(
-      data: new IconThemeData(color: Theme.of(context).accentColor),
-      child: new Container(
+    return
+//      new IconTheme(
+//      data: new IconThemeData(color: Theme.of(context).accentColor),
+//      child:
+      new Container(
         margin: const EdgeInsets.symmetric(horizontal: 8.0),
         child: new Row(
           children: <Widget>[
             new Container(
               margin: new EdgeInsets.symmetric(horizontal: 4.0),
               child: new IconButton(
-                  icon: new Icon(Icons.photo_camera),
-                  onPressed: () async {
-                    await _ensureLoggedIn();
-                    File imageFile = await ImagePicker.pickImage();
-                    int random = new Random().nextInt(100000);
-                    StorageReference ref = FirebaseStorage.instance.ref().child("image_$random.jpg");
-                    StorageUploadTask uploadTask = ref.put(imageFile);
-                    Uri downloadUrl = (await uploadTask.future).downloadUrl;
-                    _sendMessage(imageUrl: downloadUrl.toString());
-                  },
+                icon: new Icon(Icons.photo_camera),
+                color: Theme.of(context).accentColor,
+                onPressed: () async {
+                  await _ensureLoggedIn();
+                  File imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
+                  int random = new Random().nextInt(100000);
+                  StorageReference ref = FirebaseStorage.instance.ref().child("image_$random.jpg");
+                  StorageUploadTask uploadTask = ref.put(imageFile);
+                  Uri downloadUrl = (await uploadTask.future).downloadUrl;
+                  _sendMessage(imageUrl: downloadUrl.toString());
+                },
               ),
             ),
             new Flexible(
@@ -141,7 +160,9 @@ class ChatScreenState extends State<ChatScreen> {
                 )
                     : (
                     new IconButton(
-                      icon: new Icon(Icons.send),
+                      icon: new Icon(
+                        Icons.send,
+                      ),
                       onPressed: _isComposing
                           ? () =>  _handleSubmitted(_textController.text)
                           : null,
@@ -150,12 +171,17 @@ class ChatScreenState extends State<ChatScreen> {
             ),
           ],
         ),
-      ),
-    );
+      );
+//    );
   }
 
 
   Future<Null> _handleSubmitted(String text) async {
+    if (text.length == 0) {
+      return null;
+    }
+
+    debugPrint(text);
     _textController.clear();
 
     setState(() {
