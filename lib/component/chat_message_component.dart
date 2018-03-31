@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 
-class ChatMessage extends StatelessWidget {
+class ChatMessageComponent extends StatelessWidget {
 
-  ChatMessage({this.snapshot, this.animation});
+  ChatMessageComponent({this.snapshot, this.animation});
 
   final DataSnapshot snapshot;
   final Animation animation;

@@ -1,46 +1,68 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
+
+import 'package:friendlychat/friendlychat_app_container.dart';
+import 'package:friendlychat/friendlychat_app_ui.dart';
+import 'package:friendlychat/controller/main_tab_controller.dart';
 
 
-import 'package:friendlychat/page/user_page.dart';
 
-import 'package:flutter/foundation.dart';
-import 'package:friendlychat/themedata/cupertino_themedata.dart';
-import 'package:friendlychat/themedata/default_themedata.dart';
-
-import 'package:redux/redux.dart';
-import 'package:flutter_redux/flutter_redux.dart';
-import 'package:redux_epics/redux_epics.dart';
-
-import 'package:friendlychat/redux/app_state.dart';
-import 'package:friendlychat/redux/app_state_reducer.dart';
-import 'package:friendlychat/redux/middleware.dart';
-import 'package:friendlychat/page/main_tab_page.dart';
 
 
 class FriendlychatApp extends StatelessWidget {
 
-  final store = new Store<AppState>(
-      appStateReducer,
-      initialState: new AppState(),
-      middleware: [new EpicMiddleware(allEpics)]
-  );
 
   @override
   Widget build(BuildContext context) {
-    return new StoreProvider(
-      store: store,
-      child: new MaterialApp(
-        title: "Friendlychat",
-        routes: <String, WidgetBuilder> {
-          '/': (BuildContext context) => new MainTabPage(),
-          '/user' : (BuildContext context) => UserPage()
-        },
-//        home: new MainTabPage(),
-        theme: defaultTargetPlatform == TargetPlatform.iOS
-            ? kCupertinoThemeData
-            : kDefaultThemeData,
+    return FriendlychatAppContainer(
+      child: FriendlychatAppUI(
+        child: new MaterialApp(
+          title: "Friendlychat",
+          routes: <String, WidgetBuilder> {
+            AppRoute.main.path: (BuildContext context) => new MainTabController(
+              selectedTabRoute: AppRoute.counterMainTab,
+            ),
+          },
+          //theme: FriendlychatAppUI.of(context).themeData,
+          builder: (context, widget) {
+            return new MainTabController(selectedTabRoute: AppRoute.counterMainTab,);
+          },
+        ),
       ),
     );
   }
+}
+
+
+class AppRouteDetails {
+  String path;
+  int index;
+
+  AppRouteDetails({
+    this.path,
+    this.index = 0,
+  });
+
+}
+
+class AppRoute {
+
+  AppRouteDetails details;
+
+  static final main = AppRouteDetails(path: "/");
+
+  static final counterMainTab =  AppRouteDetails(path: "/counterMainTab", index: 0,);
+  static final chatMainTab = AppRouteDetails(path:"/chatMainTab", index: 1,);
+  static final userMainTab = AppRouteDetails(path:"/userMainTab", index: 2,);
+
+  static final chatMessages = AppRouteDetails(path:"/chatMessages");
+
+
+  AppRoute.fromMainTabIndex(int mainTabIndex) {
+    switch (mainTabIndex) {
+      case 1: details = AppRoute.chatMainTab; break;
+      case 2: details = AppRoute.userMainTab; break;
+      default: details = AppRoute.counterMainTab; break;// 0
+    }
+  }
+
 }

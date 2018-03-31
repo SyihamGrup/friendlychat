@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:friendlychat/component/chat_message.dart';
+import 'package:friendlychat/component/chat_message_component.dart';
 import 'package:friendlychat/component/default_app_bar.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -26,13 +26,15 @@ final reference = FirebaseDatabase.instance.reference().child('messages');
 
 
 
-final chatPageBottomNavigationBarItem = new BottomNavigationBarItem(
-  icon: new Icon(Icons.chat_bubble),
-  title: new Text('Chat'),
-);
+
 
 
 class ChatPage extends StatefulWidget {
+
+  static final chatPageBottomNavigationBarItem = new BottomNavigationBarItem(
+    icon: new Icon(Icons.chat_bubble),
+    title: new Text('Chat'),
+  );
 
   @override
   State createState() => new ChatPageState();
@@ -59,7 +61,7 @@ class ChatPageState extends State<ChatPage> {
 
 
     return new Scaffold(
-      appBar: new DefaultAppBar(
+      appBar: new DefaultAppBarComponent(
         title: new Text("Friendlychat"),
       ),
         body: _buildBody()
@@ -78,7 +80,7 @@ class ChatPageState extends State<ChatPage> {
                 padding: new EdgeInsets.all(8.0),
                 reverse: true,
                 itemBuilder: (_, DataSnapshot snapshot, Animation<double> animation, int index) {
-                  return new ChatMessage(
+                  return new ChatMessageComponent(
                       snapshot: snapshot,
                       animation: animation
                   );

@@ -1,51 +1,63 @@
 import 'package:flutter/material.dart';
+
 import 'package:friendlychat/page/chat_page.dart';
 import 'package:friendlychat/page/counter_page.dart';
 import 'package:friendlychat/page/user_page.dart';
+import 'package:friendlychat/friendlychat_app.dart';
 
-class MainTabPage extends StatefulWidget {
+
+class MainTabController extends StatefulWidget {
+
+  AppRouteDetails selectedTabRoute;
+
+  MainTabController({
+    Key key,
+    this.selectedTabRoute,
+  }) :
+        super(key: key);
+
+
   @override
-  State createState() => new _MainTabPageState();
+  State createState() => new _MainTabControllerState();
+
 }
 
-class _MainTabPageState extends State<MainTabPage> {
+class _MainTabControllerState extends State<MainTabController> {
 
-  int index = 0;
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-
       body: new Stack(
         children: <Widget>[
           new Offstage(
-            offstage: index != 0,
+            offstage: widget.selectedTabRoute != AppRoute.counterMainTab,
             child: new CounterPage(),
           ),
           new Offstage(
-            offstage: index != 1,
+            offstage: widget.selectedTabRoute != AppRoute.chatMainTab,
             child: new ChatPage(),
           ),
           new Offstage(
-            offstage: index != 2,
+            offstage: widget.selectedTabRoute != AppRoute.userMainTab,
             child: new UserPage(),
           ),
         ],
       ),
 
       bottomNavigationBar: new BottomNavigationBar(
-        currentIndex: index,
+        currentIndex: widget.selectedTabRoute.index,
         type: BottomNavigationBarType.fixed,
         fixedColor: Theme.of(context).accentColor,
         onTap: (int index) {
           setState(() {
-            this.index = index;
+            widget.selectedTabRoute = AppRoute.fromMainTabIndex(index).details;
           });
         },
         items: <BottomNavigationBarItem>[
-          counterPageBottomNavigationBarItem,
-          chatPageBottomNavigationBarItem,
-          userPageBottomNavigationBarItem,
+          CounterPage.counterPageBottomNavigationBarItem,
+          ChatPage.chatPageBottomNavigationBarItem,
+          UserPage.userPageBottomNavigationBarItem,
         ],
       ),
     );

@@ -133,7 +133,7 @@ DEPENDENCIES:
   - firebase_storage (from `Pods/.symlinks/plugins/firebase_storage-0.2.0/ios`)
   - Flutter (from `Pods/.symlinks/flutter/ios`)
   - google_sign_in (from `Pods/.symlinks/plugins/google_sign_in-3.0.0/ios`)
-  - image_picker (from `Pods/.symlinks/plugins/image_picker-0.3.1/ios`)
+  - image_picker (from `Pods/.symlinks/plugins/image_picker-0.4.0/ios`)
 
 EXTERNAL SOURCES:
   cloud_firestore:
@@ -153,7 +153,7 @@ EXTERNAL SOURCES:
   google_sign_in:
     :path: Pods/.symlinks/plugins/google_sign_in-3.0.0/ios
   image_picker:
-    :path: Pods/.symlinks/plugins/image_picker-0.3.1/ios
+    :path: Pods/.symlinks/plugins/image_picker-0.4.0/ios
 
 SPEC CHECKSUMS:
   BoringSSL: 32764dbaf5f5888cf51fbaa172a010126b41bcd4
