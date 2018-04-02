@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:redux/redux.dart';
 import 'package:flutter/cupertino.dart';
 
-import 'package:friendlychat/redux/app_state.dart';
-
 
 
 

@@ -1,16 +1,39 @@
 
 
 class UserEntity {
+
   final String id;
   final String displayName;
   final String photoUrl;
 
-  UserEntity({this.id, this.displayName, this.photoUrl});
+  UserEntity({
+    this.id,
+    this.displayName,
+    this.photoUrl
+  });
 
-  @override
-  String toString() {
-    return 'UserEntity{id: $id, displayName: $displayName, photoUrl: $photoUrl}';
+
+  bool isLogged() {
+    return id != null;
   }
+
+  static final guest = new UserEntity(
+    displayName: 'Guest'
+  );
+
+}
+
+
+
+
+
+
+
+
+//  @override
+//  String toString() {
+//    return 'UserEntity{id: $id, displayName: $displayName, photoUrl: $photoUrl}';
+//  }
 
 //  @override
 //  bool operator ==(Object other) =>
@@ -23,5 +46,3 @@ class UserEntity {
 //
 //  @override
 //  int get hashCode => id.hashCode ^ displayName.hashCode ^ photoUrl.hashCode;
-
-}

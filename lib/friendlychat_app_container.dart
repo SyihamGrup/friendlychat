@@ -1,47 +1,72 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:friendlychat/entity/user_entity.dart';
+import 'package:friendlychat/repository/user_repository.dart';
+
+
+
+class AppState {
+
+  UserEntity loggedUser;
+  bool isLoading;
+  int currentCounter;
+
+  AppState({
+    this.loggedUser,
+
+    this.currentCounter: 0,
+    this.isLoading: false,
+  });
+
+}
 
 
 class FriendlychatAppContainer extends StatefulWidget {
-//  final AppState state;
-//  final TodosRepository repository;
+
+  final AppState appState;
+  final UserRespository userRespository;
   final Widget child;
 
   FriendlychatAppContainer({
+    this.appState,
+
+    this.userRespository = const UserRespository(),
+
     @required this.child,
-//    this.repository = const TodosRepositoryFlutter(
-//      fileStorage: const FileStorage(
-//        'inherited_widget_sample',
-//        getApplicationDocumentsDirectory,
-//      ),
-//    ),
-//    this.state,
   });
 
-  static _FriendlychatAppContainerState of(BuildContext context) {
-    _FriendlychatAppContainer container = (context.inheritFromWidgetOfExactType(_FriendlychatAppContainer) as _FriendlychatAppContainer);
-    return container.data;
+  static FriendlychatAppContainerState of(BuildContext context) {
+    return (context.inheritFromWidgetOfExactType(_InheritedStateContainer)
+    as _InheritedStateContainer)
+        .data;
   }
 
   @override
   State<StatefulWidget> createState() {
-    return new _FriendlychatAppContainerState();
+    return new FriendlychatAppContainerState();
   }
 }
 
-class _FriendlychatAppContainerState extends State<FriendlychatAppContainer> {
+class FriendlychatAppContainerState extends State<FriendlychatAppContainer> {
 
-//  AppState state;
+  AppState appState;
 
   @override
   void initState() {
-//    if (widget.state != null) {
-//      state = widget.state;
-//    } else {
-//      state = new AppState.loading();
+    if (widget.appState != null) {
+      appState = widget.appState;
+    } else {
+      appState = new AppState(
+          loggedUser: UserEntity.guest,
+      );
+    }
+
+//    if (appState.loggedUser.id == null) {
+//      _login();
 //    }
-//
+
+
 //    widget.repository.loadTodos().then((loadedTodos) {
 //      setState(() {
 //        state = new AppState(
@@ -57,27 +82,46 @@ class _FriendlychatAppContainerState extends State<FriendlychatAppContainer> {
     super.initState();
   }
 
+  void login() {
+    _login();
+  }
+
+
+  void _login() {
+    setState(() {
+      appState.isLoading = true;
+    });
+
+    widget.userRespository.login().then((loggedUser) {
+      setState(() {
+        appState.isLoading = false;
+        appState.loggedUser = loggedUser;
+      });
+    });
+  }
+
+  void raiseCounter() {
+    setState(() {
+      appState.currentCounter += 1;
+    });
+  }
+
+  void logout() {
+    setState(() {
+      appState.isLoading = true;
+    });
+
+    widget.userRespository.logout().then((loggedUser) {
+      setState(() {
+        appState.isLoading = false;
+        appState.loggedUser = UserEntity.guest;
+      });
+    });
+  }
+
 //  void toggleAll() {
 //    setState(() {
 //      state.toggleAll();
-//    });
-//  }
-//
-//  void clearCompleted() {
-//    setState(() {
-//      state.clearCompleted();
-//    });
-//  }
-//
-//  void addTodo(Todo todo) {
-//    setState(() {
-//      state.todos.add(todo);
-//    });
-//  }
-//
-//  void removeTodo(Todo todo) {
-//    setState(() {
-//      state.todos.remove(todo);
 //    });
 //  }
 //
@@ -112,17 +156,18 @@ class _FriendlychatAppContainerState extends State<FriendlychatAppContainer> {
 
   @override
   Widget build(BuildContext context) {
-    return new _FriendlychatAppContainer(
+    return new _InheritedStateContainer(
       data: this,
       child: widget.child,
     );
   }
 }
 
-class _FriendlychatAppContainer extends InheritedWidget {
-  final _FriendlychatAppContainerState data;
 
-  _FriendlychatAppContainer({
+class _InheritedStateContainer extends InheritedWidget {
+  final FriendlychatAppContainerState data;
+
+  _InheritedStateContainer({
     Key key,
     @required this.data,
     @required Widget child,
@@ -134,7 +179,7 @@ class _FriendlychatAppContainer extends InheritedWidget {
   // root Widget, when we make changes we also know we want to rebuild Widgets
   // that depend on the StateContainer.
   @override
-  bool updateShouldNotify(_FriendlychatAppContainer old) => true;
+  bool updateShouldNotify(_InheritedStateContainer old) => true;
 }
 
 //typedef TodoUpdater(

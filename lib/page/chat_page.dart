@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:friendlychat/component/chat_message_component.dart';
 import 'package:friendlychat/component/default_app_bar.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,29 +16,43 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:math';
 import 'dart:io';
+import 'package:friendlychat/entity/user_entity.dart';
+import 'package:friendlychat/component/gradient_background_component.dart';
 
 
-
-final googleSignIn = new GoogleSignIn();
 final analytics = new FirebaseAnalytics();
 final auth = FirebaseAuth.instance;
+
+
 final reference = FirebaseDatabase.instance.reference().child('messages');
 
 
-
-
-
+typedef ChatPageDidLoginAction();
 
 
 class ChatPage extends StatefulWidget {
 
-  static final chatPageBottomNavigationBarItem = new BottomNavigationBarItem(
+  final UserEntity user;
+
+  final ChatPageDidLoginAction loginAction;
+
+  ChatPage({
+    Key key,
+    this.user,
+
+    @required this.loginAction,
+  }) :
+        super(key: key);
+
+
+  @override
+  State createState() => new ChatPageState();
+
+  static final bottomNavigationBarItem = new BottomNavigationBarItem(
     icon: new Icon(Icons.chat_bubble),
     title: new Text('Chat'),
   );
 
-  @override
-  State createState() => new ChatPageState();
 }
 
 class ChatPageState extends State<ChatPage> {
@@ -47,29 +62,52 @@ class ChatPageState extends State<ChatPage> {
 
   int newMessagesCount = 0;
   bool _isComposing = false;
-
+  UserEntity user;
 
 
 
   @override
   Widget build(BuildContext context) {
+
     reference.onChildAdded.listen((event) {
       setState((){
         newMessagesCount += 1;
       });
     });
 
+    if (widget.user == null) {
+      return new Scaffold(
+          body: _buildNeedLoginBody(context),
+      );
+    }
 
     return new Scaffold(
-      appBar: new DefaultAppBarComponent(
-        title: new Text("Friendlychat"),
-      ),
-        body: _buildBody()
+        appBar: new DefaultAppBarComponent(
+          title: new Text("Friendlychat"),
+        ),
+        body: _buildBody(context),
     );
   }
 
 
-  Widget _buildBody() {
+  Widget _buildNeedLoginBody(BuildContext context) {
+    return new GradientBackgroundComponent (
+      child: new Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          new FlatButton(
+            onPressed: () => widget.loginAction(),
+            child: new Text('SIGN/LOG IN'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBody(BuildContext context) {
+    user = widget.user;
+
     return new Container(
         child: new Column(
           children: <Widget>[
@@ -111,70 +149,64 @@ class ChatPageState extends State<ChatPage> {
   }
 
   Widget _buildTextComposer() {
-    return
-//      new IconTheme(
-//      data: new IconThemeData(color: Theme.of(context).accentColor),
-//      child:
-      new Container(
-        margin: const EdgeInsets.symmetric(horizontal: 8.0),
-        child: new Row(
-          children: <Widget>[
-            new Container(
+    return new Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: new Row(
+        children: <Widget>[
+          new Container(
+            margin: new EdgeInsets.symmetric(horizontal: 4.0),
+            child: new IconButton(
+              icon: new Icon(Icons.photo_camera),
+              color: Theme.of(context).accentColor,
+              onPressed: () async {
+                File imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
+                int random = new Random().nextInt(100000);
+                StorageReference ref = FirebaseStorage.instance.ref().child("image_$random.jpg");
+                StorageUploadTask uploadTask = ref.put(imageFile);
+                Uri downloadUrl = (await uploadTask.future).downloadUrl;
+                _sendMessage(imageUrl: downloadUrl.toString());
+              },
+            ),
+          ),
+          new Flexible(
+            child: new TextField(
+              controller: _textController,
+              onChanged: (String text) {
+                setState(() {
+                  _isComposing = text.length > 0;
+                });
+              },
+              onSubmitted: _handleSubmitted,
+              decoration: new InputDecoration.collapsed(
+                  hintText: "Send a message"
+              ),
+            ),
+          ),
+          new Container(
               margin: new EdgeInsets.symmetric(horizontal: 4.0),
-              child: new IconButton(
-                icon: new Icon(Icons.photo_camera),
-                color: Theme.of(context).accentColor,
-                onPressed: () async {
-                  await _ensureLoggedIn();
-                  File imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
-                  int random = new Random().nextInt(100000);
-                  StorageReference ref = FirebaseStorage.instance.ref().child("image_$random.jpg");
-                  StorageUploadTask uploadTask = ref.put(imageFile);
-                  Uri downloadUrl = (await uploadTask.future).downloadUrl;
-                  _sendMessage(imageUrl: downloadUrl.toString());
-                },
-              ),
-            ),
-            new Flexible(
-              child: new TextField(
-                controller: _textController,
-                onChanged: (String text) {
-                  setState(() {
-                    _isComposing = text.length > 0;
-                  });
-                },
-                onSubmitted: _handleSubmitted,
-                decoration: new InputDecoration.collapsed(
-                    hintText: "Send a message"
-                ),
-              ),
-            ),
-            new Container(
-                margin: new EdgeInsets.symmetric(horizontal: 4.0),
-                child: Theme.of(context).platform == TargetPlatform.iOS
-                    ? (
-                    new CupertinoButton(
-                      child: new Text("Send"),
-                      onPressed: _isComposing
-                          ? () =>  _handleSubmitted(_textController.text)
-                          : null,
-                    )
-                )
-                    : (
-                    new IconButton(
-                      icon: new Icon(
-                        Icons.send,
-                      ),
-                      onPressed: _isComposing
-                          ? () =>  _handleSubmitted(_textController.text)
-                          : null,
-                    )
-                )
-            ),
-          ],
-        ),
-      );
-//    );
+              child: Theme.of(context).platform == TargetPlatform.iOS
+                  ? (
+                  new CupertinoButton(
+                    child: new Text("Send"),
+                    onPressed: _isComposing
+                        ? () =>  _handleSubmitted(_textController.text)
+                        : null,
+                  )
+              )
+                  : (
+                  new IconButton(
+                    icon: new Icon(
+                      Icons.send,
+                    ),
+                    onPressed: _isComposing
+                        ? () =>  _handleSubmitted(_textController.text)
+                        : null,
+                  )
+              )
+          ),
+        ],
+      ),
+    );
   }
 
 
@@ -190,38 +222,15 @@ class ChatPageState extends State<ChatPage> {
       _isComposing = false;
     });
 
-    await _ensureLoggedIn();
-
     _sendMessage(text: text);
   }
 
-  Future<Null> _ensureLoggedIn() async {
-    GoogleSignInAccount user = googleSignIn.currentUser;
-
-    if (user == null)
-      user = await googleSignIn.signInSilently();
-    if (user == null) {
-      await googleSignIn.signIn();
-    }
-
-    if (await auth.currentUser() == null) {
-      GoogleSignInAuthentication credentials = await googleSignIn.currentUser.authentication;
-
-      await auth.signInWithGoogle(
-        idToken: credentials.idToken,
-        accessToken: credentials.accessToken,
-      );
-    } else {
-      analytics.logLogin();
-    }
-  }
-
-  void _sendMessage({ String text, String imageUrl }) {
+  void _sendMessage({ String text, String imageUrl}) {
     reference.push().set({
       'text': text,
       'imageUrl': imageUrl,
-      'senderName': googleSignIn.currentUser.displayName,
-      'senderPhotoUrl': googleSignIn.currentUser.photoUrl,
+      'senderName': user.displayName,
+      'senderPhotoUrl': user.photoUrl,
     });
 
     analytics.logEvent(name: 'send_message');

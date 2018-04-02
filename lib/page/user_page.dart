@@ -1,8 +1,29 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:friendlychat/component/gradient_background_component.dart';
+import 'package:friendlychat/entity/user_entity.dart';
+import 'package:friendlychat/image/friendlychat_app_images.dart';
 
 
-class UserPage extends StatelessWidget {
+typedef CounterPageDidSignoutAction();
+typedef CounterPageDidLoginAction();
+
+class UserPage extends StatefulWidget {
+
+  final UserEntity user;
+  final CounterPageDidSignoutAction signoutAction;
+  final CounterPageDidLoginAction loginAction;
+
+  UserPage({
+    Key key,
+    @required this.user,
+    @required this.signoutAction,
+    @required this.loginAction,
+  }) :
+      super(key: key);
+
+  @override
+  _UserPageState createState() => _UserPageState();
 
 
   static final userPageBottomNavigationBarItem = new BottomNavigationBarItem(
@@ -10,12 +31,17 @@ class UserPage extends StatelessWidget {
     title: new Text('User'),
   );
 
+}
+
+
+
+class _UserPageState extends State<UserPage> {
+
+
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      //appBar: new AppBar(
-      //  title: new Text('Counter')
-      //),
       body: _buildBody(context),
     );
   }
@@ -28,17 +54,29 @@ class UserPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           new Container(
-            margin: const EdgeInsets.only(right: 16.0),
             child: new CircleAvatar(
-              //backgroundImage: new NetworkImage(store.state.googleSignIn.currentUser.photoUrl),
+              backgroundImage: widget.user.photoUrl == null
+                  ? FImages.placeholderAvatar
+                  : new NetworkImage(widget.user.photoUrl),
             ),
           ),
-          //new Text(store.state.googleSignIn.currentUser.displayName),
+
+          new Text(
+            widget.user.displayName,
+            textAlign: TextAlign.center,
+          ),
           new FlatButton(
             onPressed: () async {
-              //await store.state.auth.signOut();
+              if (widget.user.isLogged() == true) {
+                widget.signoutAction();
+              } else {
+                widget.loginAction();
+              }
             },
-            child: new Text('SIGN OUT'),
+            child: new Text( widget.user.isLogged() == true
+                ? 'LOG OUT'
+                : 'SIGN/LOG IN'
+            ),
           ),
         ],
       ),
