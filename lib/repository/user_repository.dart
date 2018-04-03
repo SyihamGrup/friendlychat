@@ -29,15 +29,11 @@ class UserRespository  {
       );
     }
 
-//    final firebaseUser = await auth.signInAnonymously();
-
     return UserEntity(
       id: googleSignIn.currentUser.id,
       displayName: googleSignIn.currentUser.displayName,
       photoUrl: googleSignIn.currentUser.photoUrl,
     );
-
-    //analytics.logLogin();
   }
 
   Future<UserEntity> logout() async {

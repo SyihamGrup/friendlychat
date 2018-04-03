@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:friendlychat/component/chat_message_component.dart';
 import 'package:friendlychat/component/default_app_bar.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:friendlychat/entity/message_entity.dart';
 
 
 import 'dart:async';
@@ -20,27 +21,33 @@ import 'package:friendlychat/entity/user_entity.dart';
 import 'package:friendlychat/component/gradient_background_component.dart';
 
 
-final analytics = new FirebaseAnalytics();
-final auth = FirebaseAuth.instance;
+//final analytics = new FirebaseAnalytics();
+//final auth = FirebaseAuth.instance;
 
 
-final reference = FirebaseDatabase.instance.reference().child('messages');
+//final reference = FirebaseDatabase.instance.reference().child('messages');
 
 
 typedef ChatPageDidLoginAction();
+typedef ChatPageDidSendMessageAction(String text, File imageFile);
 
 
 class ChatPage extends StatefulWidget {
 
-  final UserEntity user;
+  final bool isLogged;
 
   final ChatPageDidLoginAction loginAction;
+  final ChatPageDidSendMessageAction sendMessageAction;
+  final DatabaseReference databaseReference;
 
   ChatPage({
     Key key,
-    this.user,
 
+    this.isLogged,
+
+    @required this.sendMessageAction,
     @required this.loginAction,
+    @required this.databaseReference,
   }) :
         super(key: key);
 
@@ -57,25 +64,23 @@ class ChatPage extends StatefulWidget {
 
 class ChatPageState extends State<ChatPage> {
 
-
   final TextEditingController _textController = new TextEditingController();
 
-  int newMessagesCount = 0;
+//  int newMessagesCount = 0;
   bool _isComposing = false;
-  UserEntity user;
 
 
 
   @override
   Widget build(BuildContext context) {
 
-    reference.onChildAdded.listen((event) {
-      setState((){
-        newMessagesCount += 1;
-      });
-    });
+//    reference.onChildAdded.listen((event) {
+//      setState((){
+//        newMessagesCount += 1;
+//      });
+//    });
 
-    if (widget.user == null) {
+    if (widget.isLogged == false || widget.databaseReference == null) {
       return new Scaffold(
           body: _buildNeedLoginBody(context),
       );
@@ -106,22 +111,21 @@ class ChatPageState extends State<ChatPage> {
   }
 
   Widget _buildBody(BuildContext context) {
-    user = widget.user;
-
     return new Container(
         child: new Column(
           children: <Widget>[
             new Flexible(
               child: new FirebaseAnimatedList(
-                query: reference,
+                query: widget.databaseReference,
                 sort: (a, b) => b.key.compareTo(a.key),
                 padding: new EdgeInsets.all(8.0),
                 reverse: true,
                 itemBuilder: (_, DataSnapshot snapshot, Animation<double> animation, int index) {
-                  return new ChatMessageComponent(
-                      snapshot: snapshot,
-                      animation: animation
-                  );
+                  return new Text('${index}');
+//                  return new ChatMessageComponent(
+//                      messageEntity: new MessageEntity(snapshot),
+//                      animation: animation
+//                  );
                 },
               ),
             ),
@@ -153,21 +157,7 @@ class ChatPageState extends State<ChatPage> {
       margin: const EdgeInsets.symmetric(horizontal: 8.0),
       child: new Row(
         children: <Widget>[
-          new Container(
-            margin: new EdgeInsets.symmetric(horizontal: 4.0),
-            child: new IconButton(
-              icon: new Icon(Icons.photo_camera),
-              color: Theme.of(context).accentColor,
-              onPressed: () async {
-                File imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
-                int random = new Random().nextInt(100000);
-                StorageReference ref = FirebaseStorage.instance.ref().child("image_$random.jpg");
-                StorageUploadTask uploadTask = ref.put(imageFile);
-                Uri downloadUrl = (await uploadTask.future).downloadUrl;
-                _sendMessage(imageUrl: downloadUrl.toString());
-              },
-            ),
-          ),
+          _buildImageButton(context),
           new Flexible(
             child: new TextField(
               controller: _textController,
@@ -210,6 +200,20 @@ class ChatPageState extends State<ChatPage> {
   }
 
 
+  Widget _buildImageButton(BuildContext context) {
+    return new Container(
+      margin: new EdgeInsets.symmetric(horizontal: 4.0),
+      child: new IconButton(
+        icon: new Icon(Icons.photo_camera),
+        color: Theme.of(context).accentColor,
+        onPressed: () async {
+          File imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
+          _sendMessage(imageFile: imageFile);
+        },
+      ),
+    );
+  }
+
   Future<Null> _handleSubmitted(String text) async {
     if (text.length == 0) {
       return null;
@@ -225,15 +229,8 @@ class ChatPageState extends State<ChatPage> {
     _sendMessage(text: text);
   }
 
-  void _sendMessage({ String text, String imageUrl}) {
-    reference.push().set({
-      'text': text,
-      'imageUrl': imageUrl,
-      'senderName': user.displayName,
-      'senderPhotoUrl': user.photoUrl,
-    });
-
-    analytics.logEvent(name: 'send_message');
+  void _sendMessage({ String text, File imageFile}) {
+    widget.sendMessageAction(text, imageFile);
   }
 
 }

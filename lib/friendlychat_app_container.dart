@@ -1,8 +1,11 @@
-
+import 'dart:io';
+import 'dart:math';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:friendlychat/entity/user_entity.dart';
 import 'package:friendlychat/repository/user_repository.dart';
+import 'package:friendlychat/repository/messages_repository.dart';
 
 
 
@@ -11,13 +14,28 @@ class AppState {
   UserEntity loggedUser;
   bool isLoading;
   int currentCounter;
+  DatabaseReference databaseReference;
 
   AppState({
     this.loggedUser,
+    this.databaseReference,
 
     this.currentCounter: 0,
     this.isLoading: false,
   });
+
+//  @override
+//  int get hashCode => loggedUser.hashCode ^ currentCounter.hashCode ^ isLoading.hashCode ^ databaseReference.hashCode;
+//
+//  @override
+//  bool operator ==(Object other) =>
+//      identical(this, other)
+//          || other is AppState
+//          && runtimeType == other.runtimeType
+//          && loggedUser == other.loggedUser
+//          && currentCounter == other.currentCounter
+//          && isLoading == other.isLoading
+//          && databaseReference == other.databaseReference;
 
 }
 
@@ -26,12 +44,14 @@ class FriendlychatAppContainer extends StatefulWidget {
 
   final AppState appState;
   final UserRespository userRespository;
+  final MessageRespository messageRespository;
   final Widget child;
 
   FriendlychatAppContainer({
     this.appState,
 
     this.userRespository = const UserRespository(),
+    this.messageRespository = const MessageRespository(),
 
     @required this.child,
   });
@@ -52,20 +72,18 @@ class FriendlychatAppContainerState extends State<FriendlychatAppContainer> {
 
   AppState appState;
 
+
   @override
   void initState() {
     if (widget.appState != null) {
       appState = widget.appState;
     } else {
       appState = new AppState(
-          loggedUser: UserEntity.guest,
+        loggedUser: UserEntity.guest,
       );
+
+      _login();
     }
-
-//    if (appState.loggedUser.id == null) {
-//      _login();
-//    }
-
 
 //    widget.repository.loadTodos().then((loadedTodos) {
 //      setState(() {
@@ -96,6 +114,7 @@ class FriendlychatAppContainerState extends State<FriendlychatAppContainer> {
       setState(() {
         appState.isLoading = false;
         appState.loggedUser = loggedUser;
+        appState.databaseReference = widget.messageRespository.databaseReference();
       });
     });
   }
@@ -115,43 +134,21 @@ class FriendlychatAppContainerState extends State<FriendlychatAppContainer> {
       setState(() {
         appState.isLoading = false;
         appState.loggedUser = UserEntity.guest;
+        appState.databaseReference = null;
+        appState.currentCounter = 0;
       });
     });
   }
 
-//  void toggleAll() {
-//    setState(() {
-//      state.toggleAll();
-//    });
-//  }
-//
-//  void updateFilter(VisibilityFilter filter) {
-//    setState(() {
-//      state.activeFilter = filter;
-//    });
-//  }
-//
-//  void updateTodo(
-//      Todo todo, {
-//        bool complete,
-//        String id,
-//        String note,
-//        String task,
-//      }) {
-//    setState(() {
-//      todo.complete = complete ?? todo.complete;
-//      todo.id = id ?? todo.id;
-//      todo.note = note ?? todo.note;
-//      todo.task = task ?? todo.task;
-//    });
-//  }
+  void sendMessage(String text, File imageFile) {
+    widget.messageRespository.sendMessage(appState.loggedUser, text, imageFile);
+  }
+
+
 
   @override
   void setState(VoidCallback fn) {
     super.setState(fn);
-
-//    widget.repository
-//        .saveTodos(state.todos.map((todo) => todo.toEntity()).toList());
   }
 
   @override
@@ -161,6 +158,7 @@ class FriendlychatAppContainerState extends State<FriendlychatAppContainer> {
       child: widget.child,
     );
   }
+
 }
 
 
@@ -181,11 +179,3 @@ class _InheritedStateContainer extends InheritedWidget {
   @override
   bool updateShouldNotify(_InheritedStateContainer old) => true;
 }
-
-//typedef TodoUpdater(
-//    Todo todo, {
-//      bool complete,
-//      String id,
-//      String note,
-//      String task,
-//    });

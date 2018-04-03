@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
-import 'package:friendlychat/page/chat_page.dart';
+import 'package:friendlychat/page/firebase_chat_page.dart';
 import 'package:friendlychat/page/counter_page.dart';
 import 'package:friendlychat/page/user_page.dart';
+
 import 'package:friendlychat/friendlychat_app.dart';
 import 'package:friendlychat/friendlychat_app_container.dart';
+
+
 
 class MainTabController extends StatefulWidget {
 
@@ -43,8 +46,10 @@ class _MainTabControllerState extends State<MainTabController> {
           new Offstage(
             offstage: widget.selectedTabRoute != AppRoute.chatMainTab,
             child: new ChatPage(
-              user: _container.appState.loggedUser,
+              isLogged: _container.appState.loggedUser != null,
+              databaseReference: _container.appState.databaseReference,
               loginAction: () => _container.login(),
+              sendMessageAction: (text, imageFile) => _container.sendMessage(text, imageFile),
             ),
           ),
           new Offstage(
@@ -53,6 +58,7 @@ class _MainTabControllerState extends State<MainTabController> {
               loginAction: () => _container.login(),
               signoutAction: () => _container.logout(),
               user: _container.appState.loggedUser,
+              currentCounter: _container.appState.currentCounter,
             ),
           ),
         ],
