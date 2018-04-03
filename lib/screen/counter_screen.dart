@@ -1,6 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:friendlychat/component/gradient_background_component.dart';
+
+import '../component/gradient_background_component.dart';
+import '../constant/app_strings.dart';
+
 
 
 typedef CounterPageDidCounterAction();
@@ -34,12 +38,12 @@ class CounterPage extends StatefulWidget {
 
 class _CounterPageState extends State<CounterPage> {
 
-
-
-
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+      appBar: AppBar(
+        title: new Text(AppStrings.counter),
+      ),
       body: _buildBody(context),
     );
   }
@@ -50,6 +54,15 @@ class _CounterPageState extends State<CounterPage> {
         child: new Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            new Text('Global pushed times:'),
+            new Text(
+              '?',
+              style: Theme.of(context).textTheme.display2,
+            ),
+            new Divider(
+              height: 32.0,
+              color: Colors.transparent,
+            ),
             new Text('You have pushed the button this many times:'),
             new Text(
               '${widget.currentCounter}',
@@ -72,17 +85,13 @@ class _CounterPageState extends State<CounterPage> {
       width: 100.0,
       height: 100.0,
       child: new FlatButton(
-        shape: new CircleBorder(
-          side: new BorderSide(
-            color: Theme.of(context).accentColor,
-          ),
-        ),
+        shape: new CircleBorder(),
         child: new Icon(
           Icons.add,
-          color: Theme.of(context).primaryColorLight,
+          color: Theme.of(context).accentColor,
         ),
-        splashColor: Theme.of(context).highlightColor,
-        color: Theme.of(context).accentColor,
+        splashColor: Theme.of(context).accentColor,
+        color: Theme.of(context).primaryColor,
         onPressed: () {
           widget.counterAction();
         },

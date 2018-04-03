@@ -41,6 +41,9 @@ class UserRespository  {
 
     await auth.signOut();
 
+    final googleSignIn = new GoogleSignIn();
+    await googleSignIn.signOut();
+
     return null;
   }
 

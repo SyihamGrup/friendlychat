@@ -1,8 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:friendlychat/component/gradient_background_component.dart';
-import 'package:friendlychat/entity/user_entity.dart';
-import 'package:friendlychat/friendlychat_app_images.dart';
+
+import '../component/gradient_background_component.dart';
+import '../entity/user_entity.dart';
+import '../constant/app_images.dart';
+import '../constant/app_strings.dart';
 
 
 typedef CounterPageDidSignoutAction();
@@ -14,7 +17,7 @@ class UserPage extends StatefulWidget {
 
   static final userPageBottomNavigationBarItem = new BottomNavigationBarItem(
     icon: new Icon(Icons.person),
-    title: new Text('User'),
+    title: new Text(AppStrings.user),
   );
 
   final UserEntity user;
@@ -48,7 +51,7 @@ class _UserPageState extends State<UserPage> {
     );
   }
 
-
+//
   Widget _buildBody(BuildContext context) {
     return new GradientBackgroundComponent (
       child: new Column(
@@ -58,7 +61,7 @@ class _UserPageState extends State<UserPage> {
           new Container(
             child: new CircleAvatar(
               backgroundImage: widget.user.photoUrl == null
-                  ? FImages.placeholderAvatar
+                  ? AppImages.placeholderAvatar
                   : new NetworkImage(widget.user.photoUrl),
             ),
           ),
@@ -76,8 +79,8 @@ class _UserPageState extends State<UserPage> {
               }
             },
             child: new Text( widget.user.isLogged == true
-                ? 'LOG OUT'
-                : 'SIGN/LOG IN'
+                ? AppStrings.logOut
+                : AppStrings.signLogIn
             ),
           ),
         ],

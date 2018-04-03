@@ -8,6 +8,7 @@ class MessageEntity {
   final String imageUrl;
   final String text;
 
+
   MessageEntity._(
     this.senderName,
     this.senderPhotoUrl,

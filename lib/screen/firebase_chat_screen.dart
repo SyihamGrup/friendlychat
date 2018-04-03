@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:friendlychat/component/chat_message_component.dart';
-import 'package:friendlychat/component/default_app_bar.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:friendlychat/constant/app_strings.dart';
 import 'package:friendlychat/entity/message_entity.dart';
 
 
@@ -87,11 +87,12 @@ class ChatPageState extends State<ChatPage> {
     }
 
     return new Scaffold(
-        appBar: new DefaultAppBarComponent(
-          title: new Text("Friendlychat"),
+        appBar: new AppBar(
+          title: new Text(AppStrings.messages),
         ),
         body: _buildBody(context),
     );
+
   }
 
 
@@ -103,7 +104,7 @@ class ChatPageState extends State<ChatPage> {
         children: <Widget>[
           new FlatButton(
             onPressed: () => widget.loginAction(),
-            child: new Text('SIGN/LOG IN'),
+            child: new Text(AppStrings.signLogIn),
           ),
         ],
       ),
@@ -115,19 +116,25 @@ class ChatPageState extends State<ChatPage> {
         child: new Column(
           children: <Widget>[
             new Flexible(
-              child: new FirebaseAnimatedList(
-                query: widget.databaseReference,
-                sort: (a, b) => b.key.compareTo(a.key),
-                padding: new EdgeInsets.all(8.0),
-                reverse: true,
-                itemBuilder: (_, DataSnapshot snapshot, Animation<double> animation, int index) {
-                  return new Text('${index}');
-//                  return new ChatMessageComponent(
-//                      messageEntity: new MessageEntity(snapshot),
-//                      animation: animation
-//                  );
-                },
-              ),
+              child: widget.databaseReference != null
+                  ? new FirebaseAnimatedList(
+                    query: widget.databaseReference,
+                    sort: (a, b) => b.key.compareTo(a.key),
+                    padding: new EdgeInsets.all(8.0),
+                    reverse: true,
+                    itemBuilder: (_, DataSnapshot snapshot, Animation<double> animation, int index) {
+    //                  return new Text('${index}');
+                      if (snapshot != null) {
+                        return new ChatMessageComponent(
+                            messageEntity: new MessageEntity(snapshot),
+                            animation: animation
+                        );
+                      } else {
+                        return new Container();
+                      }
+                    },
+                    )
+                  : null,
             ),
             new Divider(
                 height: 1.0
@@ -168,7 +175,7 @@ class ChatPageState extends State<ChatPage> {
               },
               onSubmitted: _handleSubmitted,
               decoration: new InputDecoration.collapsed(
-                  hintText: "Send a message"
+                  hintText: AppStrings.sendAMessage,
               ),
             ),
           ),
@@ -177,7 +184,7 @@ class ChatPageState extends State<ChatPage> {
               child: Theme.of(context).platform == TargetPlatform.iOS
                   ? (
                   new CupertinoButton(
-                    child: new Text("Send"),
+                    child: new Text(AppStrings.send),
                     onPressed: _isComposing
                         ? () =>  _handleSubmitted(_textController.text)
                         : null,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:friendlychat/entity/message_entity.dart';
+
+import '../entity/message_entity.dart';
+import '../constant/app_images.dart';
 
 
 
@@ -34,8 +36,9 @@ class ChatMessageComponent extends StatelessWidget {
           new Container(
             margin: const EdgeInsets.only(right: 16.0),
             child: new CircleAvatar(
-                backgroundImage:
-                new NetworkImage(messageEntity.senderPhotoUrl)
+              backgroundImage: messageEntity.senderPhotoUrl != null
+                  ? new NetworkImage(messageEntity.senderPhotoUrl)
+                  : AppImages.placeholderAvatar,
             ),
           ),
           new Expanded(
@@ -43,7 +46,7 @@ class ChatMessageComponent extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 new Text(
-                  messageEntity.senderName,
+                  messageEntity.senderName ?? 'User',
                   style: Theme.of(context).textTheme.subhead,
                 ),
                 messageEntity.imageUrl == null

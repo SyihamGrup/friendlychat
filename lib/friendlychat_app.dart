@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:friendlychat/repository/messages_repository.dart';
+import 'package:friendlychat/repository/user_repository.dart';
 
-import 'package:friendlychat/friendlychat_app_container.dart';
-import 'package:friendlychat/friendlychat_app_ui.dart';
-import 'package:friendlychat/controller/main_tab_controller.dart';
+
+import 'flow/main_flow.dart';
 
 
 
@@ -10,26 +11,43 @@ import 'package:friendlychat/controller/main_tab_controller.dart';
 
 class FriendlychatApp extends StatelessWidget {
 
-
   @override
   Widget build(BuildContext context) {
-    return FriendlychatAppContainer(
-      child: FriendlychatAppUI(
-        child: new MaterialApp(
-          title: "Friendlychat",
-          routes: <String, WidgetBuilder> {
-            AppRoute.main.path: (BuildContext context) => new MainTabController(
-              selectedTabRoute: AppRoute.counterMainTab,
-            ),
-          },
-          //theme: FriendlychatAppUI.of(context).themeData,
-          builder: (context, widget) {
-            return new MainTabController(selectedTabRoute: AppRoute.counterMainTab,);
-          },
-        ),
+    return new MaterialApp(
+      title: "Friendlychat",
+
+      routes: <String, WidgetBuilder> {
+
+        AppRoute.main.path: (BuildContext context) {
+          return new MainFlow(
+            messageRespository: const MessageRespository(),
+            userRespository: const UserRespository(),
+          );
+        },
+
+//        AppRoute.chat.path: (BuildContext context) {
+//          return new ChatPage(
+//            isLogged: _container.appState.loggedUser != null,
+//            databaseReference: _container.appState.databaseReference,
+//            loginAction: () => _container.login(),
+//            sendMessageAction: (text, imageFile) => _container.sendMessage(text, imageFile),
+//          );
+//        },
+
+      },
+
+      initialRoute: '/',
+
+      theme: new ThemeData.dark().copyWith(
+        primaryColor: Colors.grey[100],
+        primaryColorBrightness: Brightness.light,
+        accentColor: Colors.blueAccent,
       ),
     );
   }
+
+
+
 }
 
 
@@ -51,16 +69,14 @@ class AppRoute {
   static final main = AppRouteDetails(path: "/");
 
   static final counterMainTab =  AppRouteDetails(path: "/counterMainTab", index: 0,);
-  static final chatMainTab = AppRouteDetails(path:"/chatMainTab", index: 1,);
-  static final userMainTab = AppRouteDetails(path:"/userMainTab", index: 2,);
+  static final userMainTab = AppRouteDetails(path:"/userMainTab", index: 1,);
 
-  static final chatMessages = AppRouteDetails(path:"/chatMessages");
+  static final chat = AppRouteDetails(path:"/chat");
 
 
   AppRoute.fromMainTabIndex(int mainTabIndex) {
     switch (mainTabIndex) {
-      case 1: details = AppRoute.chatMainTab; break;
-      case 2: details = AppRoute.userMainTab; break;
+      case 1: details = AppRoute.userMainTab; break;
       default: details = AppRoute.counterMainTab; break;// 0
     }
   }
